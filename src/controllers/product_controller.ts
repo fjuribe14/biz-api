@@ -15,7 +15,7 @@ export const productController = {
     try {
       const product = await ProductService.getProductById(req);
       if (!product) {
-        res.status(404).json({ error: "Producto no encontrado" });
+        res.status(404).json({ error: "Product not found" });
       }
       res.json(product);
     } catch (error: any) {
@@ -25,8 +25,8 @@ export const productController = {
 
   async createProduct(req: Request, res: Response) {
     try {
-      const newProduct = await ProductService.createProduct(req);
-      res.status(201).json(newProduct);
+      await ProductService.createProduct(req);
+      res.status(201).json({ message: "Product created successfully" });
     } catch (error: any) {
       res.status(400).json({ error: error.message });
     }
@@ -34,8 +34,8 @@ export const productController = {
 
   async updateProduct(req: Request, res: Response) {
     try {
-      const updatedProduct = await ProductService.updateProduct(req);
-      res.json(updatedProduct);
+      await ProductService.updateProduct(req);
+      res.json({ message: "Product updated successfully" });
     } catch (error: any) {
       res.status(400).json({ error: error.message });
     }
@@ -44,7 +44,7 @@ export const productController = {
   async deleteProduct(req: Request, res: Response) {
     try {
       await ProductService.deleteProduct(req);
-      res.status(204).send();
+      res.status(204).json({ message: "Product deleted successfully" });
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }

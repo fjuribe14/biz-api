@@ -48,11 +48,10 @@ model Product {
   status      Boolean?        @default(true)
   description String
   price       Float
-  stock       Int
   createdAt   DateTime        @default(now())
   updatedAt   DateTime?       @updatedAt
-
-  Order Order[]
+  inventory   Inventory?
+  orderItems  OrdenItem[]
 }
 
 enum OrderStatus {
@@ -63,18 +62,32 @@ enum OrderStatus {
   CANCELLED
 }
 
+model Inventory {
+  id        String  @id @default(cuid())
+  quantity  Int     @default(0)
+  productId String  @unique
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
 model Order {
   id         String      @id @default(cuid())
-  quantity   Int
+  date       DateTime    @default(now())
   totalPrice Float
-  status     OrderStatus
+  status     OrderStatus @default(PENDING)
   address    String
   comment    String?
   createdAt  DateTime    @default(now())
   updatedAt  DateTime?   @updatedAt
+  ordenItems OrdenItem[]
+  userId     String?
+  user       User?       @relation(fields: [userId], references: [id])
+}
 
-  products Product[]
-
-  userId String?
-  user   User?   @relation(fields: [userId], references: [id])
+model OrdenItem {
+  id        String  @id @default(cuid())
+  quantity  Int
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id])
 }

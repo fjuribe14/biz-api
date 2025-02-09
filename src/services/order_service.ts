@@ -2,20 +2,20 @@ import { Request } from "express";
 import OrderRepository from "../repositories/order_repository";
 
 class OrderService {
-  async getAllOrders(req: Request) {
-    return OrderRepository.getAllOrders(req);
+  async findAll(req: Request) {
+    return OrderRepository.findAll(req);
   }
 
-  async getOrderById(req: Request) {
-    return OrderRepository.getOrderById(req);
+  async findById(req: Request) {
+    return OrderRepository.findById(req);
   }
 
-  async createOrder(req: Request) {
-    return OrderRepository.createOrder(req);
+  async create(req: Request) {
+    return OrderRepository.create(req);
   }
 
-  async updateOrder(req: Request) {
-    return OrderRepository.updateOrder(req);
+  async update(req: Request) {
+    return OrderRepository.update(req);
   }
 }
 

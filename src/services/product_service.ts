@@ -22,13 +22,13 @@ class ProductService {
     return ProductRepository.delete(req);
   }
 
-  async addStock(req: Request) {
-    return ProductRepository.addStock(req);
-  }
+  // async addStock(req: Request) {
+  //   return ProductRepository.addStock(req);
+  // }
 
-  async removeStock(req: Request) {
-    return ProductRepository.removeStock(req);
-  }
+  // async removeStock(req: Request) {
+  //   return ProductRepository.removeStock(req);
+  // }
 }
 
 export default new ProductService();

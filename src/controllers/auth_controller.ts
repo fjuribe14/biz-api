@@ -6,7 +6,7 @@ const authController = {
     try {
       const { email, password } = req.body;
       await authService.register({ email, password });
-      res.status(201).json({ message: "Usuario creado exitosamente" });
+      res.status(201).json({ message: "User created successfully" });
     } catch (error: any) {
       res.status(400).json({ error: error.message });
     }
