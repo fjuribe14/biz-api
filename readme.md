@@ -74,7 +74,33 @@ Opté por **PostgreSQL** en lugar de MongoDB por las siguientes razones:
 ## 🛠️ **Instalación**
 
 1. Clona el repositorio:
+
    ```bash
    git clone https://github.com/tu-usuario/biz-api.git
    cd biz-api
    ```
+
+2. Instala las dependencias:
+
+   ```bash
+   npm install
+   ```
+
+3. Configura las variables de entorno:
+
+   ```bash
+   cp .env.example .env
+   ```
+
+4. Conecta la base de datos:
+
+   ```bash
+   npm run prisma:push
+   ```
+
+5. Inicia el servidor:
+   ```bash
+   npm run dev
+   ```
+
+---
