@@ -14,6 +14,8 @@ tags:
     description: Operations about authentication
   - name: Products
     description: Operations about product
+  - name: Inventory
+    description: Operations about inventory
   - name: Orders
     description: Operations about order
 paths:
@@ -100,7 +102,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GetResponse"
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Product"
+                  pagination:
+                    $ref: "#/components/schemas/Pagination"
         500:
           description: Server error
           content:
@@ -266,7 +274,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GetResponse"
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Order"
+                  pagination:
+                    $ref: "#/components/schemas/Pagination"
         500:
           description: "Server error"
           content:
@@ -378,6 +392,73 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
+  /api/inventory:
+    get:
+      tags:
+        - Inventory
+      summary: Get all inventory
+      parameters: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Inventory"
+                  pagination:
+                    $ref: "#/components/schemas/Pagination"
+
+    post:
+      tags:
+        - Inventory
+      summary: Create a new inventory
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Inventory"
+      responses:
+        "201":
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: "Inventory created successfully"
+        "400":
+          description: "Error on validation"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/inventory/{id}:
+    get:
+      tags:
+        - Inventory
+      summary: Get inventory by ID
+      parameters: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Inventory"
+        "404":
+          description: "Inventory not found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
 components:
   securitySchemes:
     bearerAuth:
@@ -386,82 +467,176 @@ components:
       bearerFormat: JWT
       description: Bearer token
   schemas:
-    Product:
+    User:
       type: object
-      required:
-        - id
-        - title
-        - price
       properties:
         id:
           type: string
-        name:
+          description: ID único del usuario.
+        email:
           type: string
+          description: Correo electrónico del usuario.
+        password:
+          type: string
+          description: Contraseña del usuario.
         image:
           type: string
-        category:
-          enum:
-            - "ELECTRONICS"
-            - "CLOTHES"
-            - "FOOD"
-            - "BOOKS"
-            - "TOYS"
-            - "GAMES"
-            - "HEALTH"
-            - "BEAUTY"
-            - "HOME"
-        status:
-          type: boolean
-        description:
+          description: URL de la imagen del usuario.
+        emailVerified:
           type: string
-        price:
-          type: number
-        stock:
-          type: number
+          format: date-time
+          description: Fecha de verificación del correo electrónico.
+        active:
+          type: boolean
+          description: Indica si el usuario está activo.
+        role:
+          type: string
+          enum: [USER, ADMIN]
+          description: Rol del usuario.
+        refreshToken:
+          type: string
+          description: Token de refresco para autenticación.
         createdAt:
           type: string
+          format: date-time
+          description: Fecha de creación del usuario.
         updatedAt:
           type: string
-      example:
-        id: "iluehfef25454rg"
-        title: "Fjallraven - Foldsack No. 1 Backpack, Fits 15 Laptops"
-        price: 109.95
-        description: "Your perfect pack for everyday use and walks in the forest. Stash your laptop (up to 15 inches) and your everyday"
-        category: "ELECTRONICS"
-        image: "https://fakestoreapi.com/img/81fPKd-2AYL._AC_SL1500_.jpg"
-        stock: 94
-        status: true
+          format: date-time
+          description: Fecha de última actualización del usuario.
+        deletedAt:
+          type: string
+          format: date-time
+          description: Fecha de eliminación del usuario.
+      required:
+        - id
+        - email
+        - password
+        - createdAt
+
+    Product:
+      type: object
+      properties:
+        id:
+          type: string
+          description: ID único del producto.
+        name:
+          type: string
+          description: Nombre del producto.
+        image:
+          type: string
+          description: URL de la imagen del producto.
+        category:
+          type: string
+          enum: [ELECTRONICS, CLOTHES, FOOD, BOOKS, TOYS, GAMES, HEALTH, BEAUTY, HOME]
+          description: Categoría del producto.
+        status:
+          type: boolean
+          description: Estado del producto (activo/inactivo).
+        description:
+          type: string
+          description: Descripción del producto.
+        price:
+          type: number
+          format: float
+          description: Precio del producto.
+        createdAt:
+          type: string
+          format: date-time
+          description: Fecha de creación del producto.
+        updatedAt:
+          type: string
+          format: date-time
+          description: Fecha de última actualización del producto.
+      required:
+        - id
+        - name
+        - image
+        - category
+        - description
+        - price
+        - createdAt
+
+    Inventory:
+      type: object
+      properties:
+        id:
+          type: string
+          description: ID único del inventario.
+        quantity:
+          type: integer
+          description: Cantidad disponible del producto.
+        productId:
+          type: string
+          description: ID del producto asociado.
+      required:
+        - id
+        - quantity
+        - productId
 
     Order:
       type: object
       properties:
         id:
           type: string
-        quantity:
-          type: number
+          description: ID único de la orden.
+        date:
+          type: string
+          format: date-time
+          description: Fecha de la orden.
         totalPrice:
           type: number
+          format: float
+          description: Precio total de la orden.
         status:
           type: string
-          enum:
-            - "PENDING"
-            - "COMPLETED"
-            - "CANCELLED"
+          enum: [PENDING, IN_PROGRESS, SHIPPED, DELIVERED, CANCELLED]
+          description: Estado de la orden.
         address:
           type: string
+          description: Dirección de entrega.
         comment:
           type: string
+          description: Comentario adicional de la orden.
         createdAt:
           type: string
+          format: date-time
+          description: Fecha de creación de la orden.
         updatedAt:
           type: string
-      example:
-        id: "iluehfef25454rg"
-        quantity: 1
-        totalPrice: 109.95
-        status: "PENDING"
-        address: "123 Main St, Anytown, USA"
-        comment: "This is a test order"
+          format: date-time
+          description: Fecha de última actualización de la orden.
+        userId:
+          type: string
+          description: ID del usuario asociado a la orden.
+      required:
+        - id
+        - date
+        - totalPrice
+        - status
+        - address
+        - createdAt
+
+    OrdenItem:
+      type: object
+      properties:
+        id:
+          type: string
+          description: ID único del ítem de la orden.
+        quantity:
+          type: integer
+          description: Cantidad del producto en la orden.
+        productId:
+          type: string
+          description: ID del producto asociado.
+        orderId:
+          type: string
+          description: ID de la orden asociada.
+      required:
+        - id
+        - quantity
+        - productId
+        - orderId
 
     GetResponse:
       type: object
@@ -469,10 +644,13 @@ components:
         data:
           type: array
           items:
-            $ref: "#/components/schemas/Product"
+            properties:
+              id:
+                type: string
         pagination:
           type: object
           $ref: "#/components/schemas/Pagination"
+
     Pagination:
       type: object
       properties:
@@ -491,6 +669,7 @@ components:
         offset:
           type: integer
           format: int32
+
     LoginRequest:
       type: object
       required:
@@ -504,6 +683,7 @@ components:
       example:
         email: 3bM6o@example.com
         password: password123
+
     LoginResponse:
       type: object
       required:
@@ -513,6 +693,7 @@ components:
           type: string
       example:
         token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+
     RegisterRequest:
       type: object
       required:
@@ -526,6 +707,7 @@ components:
       example:
         email: 3bM6o@example.com
         password: password123
+
     RegisterResponse:
       type: object
       properties:
@@ -533,6 +715,7 @@ components:
           type: string
       example:
         message: "User created successfully"
+
     ErrorResponse:
       type: object
       required:
@@ -542,191 +725,3 @@ components:
           type: string
       example:
         error: "Error message"
-    # Order:
-    #   type: object
-    #   properties:
-    #     id:
-    #       type: integer
-    #       format: int64
-    #       example: 10
-    #     petId:
-    #       type: integer
-    #       format: int64
-    #       example: 198772
-    #     quantity:
-    #       type: integer
-    #       format: int32
-    #       example: 7
-    #     shipDate:
-    #       type: string
-    #       format: date-time
-    #     status:
-    #       type: string
-    #       description: Order Status
-    #       example: approved
-    #       enum:
-    #         - placed
-    #         - approved
-    #         - delivered
-    #     complete:
-    #       type: boolean
-    #   xml:
-    #     name: order
-    # Customer:
-    #   type: object
-    #   properties:
-    #     id:
-    #       type: integer
-    #       format: int64
-    #       example: 100000
-    #     username:
-    #       type: string
-    #       example: fehguy
-    #     address:
-    #       type: array
-    #       xml:
-    #         name: addresses
-    #         wrapped: true
-    #       items:
-    #         $ref: "#/components/schemas/Address"
-    #   xml:
-    #     name: customer
-    # Address:
-    #   type: object
-    #   properties:
-    #     street:
-    #       type: string
-    #       example: 437 Lytton
-    #     city:
-    #       type: string
-    #       example: Palo Alto
-    #     state:
-    #       type: string
-    #       example: CA
-    #     zip:
-    #       type: string
-    #       example: "94301"
-    #   xml:
-    #     name: address
-    # Category:
-    #   type: object
-    #   properties:
-    #     id:
-    #       type: integer
-    #       format: int64
-    #       example: 1
-    #     name:
-    #       type: string
-    #       example: Dogs
-    #   xml:
-    #     name: category
-    # User:
-    #   type: object
-    #   properties:
-    #     id:
-    #       type: integer
-    #       format: int64
-    #       example: 10
-    #     username:
-    #       type: string
-    #       example: theUser
-    #     firstName:
-    #       type: string
-    #       example: John
-    #     lastName:
-    #       type: string
-    #       example: James
-    #     email:
-    #       type: string
-    #       example: john@email.com
-    #     password:
-    #       type: string
-    #       example: "12345"
-    #     phone:
-    #       type: string
-    #       example: "12345"
-    #     userStatus:
-    #       type: integer
-    #       description: User Status
-    #       format: int32
-    #       example: 1
-    #   xml:
-    #     name: user
-    # Tag:
-    #   type: object
-    #   properties:
-    #     id:
-    #       type: integer
-    #       format: int64
-    #     name:
-    #       type: string
-    #   xml:
-    #     name: tag
-    # Pet:
-    #   required:
-    #     - name
-    #     - photoUrls
-    #   type: object
-    #   properties:
-    #     id:
-    #       type: integer
-    #       format: int64
-    #       example: 10
-    #     name:
-    #       type: string
-    #       example: doggie
-    #     category:
-    #       $ref: "#/components/schemas/Category"
-    #     photoUrls:
-    #       type: array
-    #       xml:
-    #         wrapped: true
-    #       items:
-    #         type: string
-    #         xml:
-    #           name: photoUrl
-    #     tags:
-    #       type: array
-    #       xml:
-    #         wrapped: true
-    #       items:
-    #         $ref: "#/components/schemas/Tag"
-    #     status:
-    #       type: string
-    #       description: pet status in the store
-    #       enum:
-    #         - available
-    #         - pending
-    #         - sold
-    #   xml:
-    #     name: pet
-    # ApiResponse:
-    #   type: object
-    #   properties:
-    #     code:
-    #       type: integer
-    #       format: int32
-    #     type:
-    #       type: string
-    #     message:
-    #       type: string
-    #   xml:
-    #     name: "##default"
-  # requestBodies:
-  #   Pet:
-  #     description: Pet object that needs to be added to the store
-  #     content:
-  #       application/json:
-  #         schema:
-  #           $ref: "#/components/schemas/Pet"
-  #       application/xml:
-  #         schema:
-  #           $ref: "#/components/schemas/Pet"
-  #   UserArray:
-  #     description: List of user object
-  #     content:
-  #       application/json:
-  #         schema:
-  #           type: array
-  #           items:
-  #             $ref: "#/components/schemas/User"
